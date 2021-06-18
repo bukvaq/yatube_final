@@ -194,13 +194,13 @@ class PostsViewTests(TestCase):
             'text': 'Текст'
         }
         self.guest_client.post(
-            reverse('add_comment', args=[self.user.username, self.post.id]),
+            reverse('post', args=[self.user.username, self.post.id]),
             form
         )
         self.assertEqual(self.post.comments.count(), 0)
 
         self.authorised_client.post(
-            reverse('add_comment', args=[self.user.username, self.post.id]),
+            reverse('post', args=[self.user.username, self.post.id]),
             form
         )
         self.assertEqual(self.post.comments.count(), 1)
