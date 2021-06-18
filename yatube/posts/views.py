@@ -65,7 +65,10 @@ def post_view(request, username, post_id):
             form.instance.author = request.user
             form.instance.post = post
             form.save()
-            return HttpResponseRedirect(reverse('post', args=[username, post_id]))
+            return HttpResponseRedirect(reverse(
+                'post',
+                args=[username, post_id])
+            )
     return render(
         request,
         'posts/post.html', {
@@ -76,7 +79,7 @@ def post_view(request, username, post_id):
             'follower': user,
             'following': following,
             'is_followed': is_followed,
-            'form':form
+            'form': form
         }
     )
 
@@ -158,7 +161,7 @@ def post_edit(request, username, id_post):
         return render(
             request,
             'posts/new_post.html',
-            {'form': form, 'edit_check': 1}
+            {'form': form, 'edit_check': 1, 'post': post_edit}
         )
 
 
