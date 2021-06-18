@@ -1,0 +1,28 @@
+{% extends "extends/base.html" %}
+{% block title %}
+{%if edit_check == 0%}
+Новая запись
+{% else %}
+Редактировть запись
+{% endif %}
+{% endblock %}
+
+{% block header %}
+{% if edit_check == 0 %}
+Добавление новой записи
+{% else %}
+Редактирование записи
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if edit_check == 0 %}
+    <input type="submit" value="Отправить">
+    {% else %}
+    <input type="submit" value="Сохранить">
+    {% endif %}
+  </form> 
+{% endblock %}

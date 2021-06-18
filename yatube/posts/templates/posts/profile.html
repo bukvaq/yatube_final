@@ -1,0 +1,16 @@
+{% extends "extends/base.html" %}
+{% block title %}Профиль пользователя {{ author.get_full_name }}{% endblock %}
+{% block header %}Профиль пользователя {{ author.get_full_name }}{% endblock %}
+{% block content %}
+
+{% include "includes/author_card.html" %}
+  
+      <div class="col-md-9">
+        {% for post in page %}
+        {% include "includes/post_generic.html" %}
+        {% endfor %}
+        {% include "includes/paginator.html" %}
+      </div>
+    </div>
+  </main>
+  {% endblock %}

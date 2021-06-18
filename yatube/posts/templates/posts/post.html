@@ -1,0 +1,17 @@
+{% extends "extends/base.html" %}
+{% block title %}Пост пользователя {{ author.get_full_name }}{% endblock %}
+{% block header %}Пост пользователя {{ author.get_full_name }}{% endblock %}
+{% block content %}
+
+{% include "includes/author_card.html" %}
+  
+      <div class="col-md-9">
+        {% include "includes/post_generic.html" %}
+        {% if form %}
+        {% include "posts/new_comment.html" %}
+        {% endif %}
+        {% include "includes/comments.html" %}
+      </div>
+    </div>
+  </main> 
+  {% endblock %}
