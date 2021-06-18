@@ -78,7 +78,7 @@ def post_view(request, username, post_id):
             'follower': user,
             'following': following,
             'is_followed': is_followed,
-            'form':form
+            'form': form
         }
         if form.is_valid():
             form.instance.author = request.user
@@ -154,7 +154,7 @@ def post_edit(request, username, id_post):
         kwargs={
             'username': username,
             'post_id': id_post,
-            'post':post_redacted
+            'post': post_redacted
         }
     )
     if not post_redacted.author == request.user:
