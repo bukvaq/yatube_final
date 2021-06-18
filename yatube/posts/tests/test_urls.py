@@ -49,9 +49,7 @@ class PostsURLTests(TestCase):
             '/new/': '/auth/login/?next=/new/',
             f'/{self.user.username}/{self.post.id}/edit/':
             f'/auth/login/?next=/{self.user.username}/{self.post.id}/edit/',
-            f'/{self.user.username}/{self.post.id}/comment':
-            (f'/auth/login/?next=/{self.user.username}/'
-             f'{self.post.id}/comment')
+
         }
         for adress, redirect in url_redirects.items():
             self.assertRedirects(self.guest_client.get(adress), redirect)
