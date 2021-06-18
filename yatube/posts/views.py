@@ -208,7 +208,7 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     """Подписывает на профиль."""
-    if username==request.user.username:
+    if username == request.user.username:
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     if Follow.objects.filter(
         author__username=username,
