@@ -19,7 +19,7 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     posts = author.posts.all()
     posts_amount = posts.count()
-    follower = author.follower.count()
+    user = author.user.count()
     following = author.following.count()
     paginator = Paginator(posts, settings.PAGE_MAX)
     page_number = request.GET.get('page')
@@ -27,7 +27,7 @@ def profile(request, username):
     if request.user.is_authenticated:
         is_followed = Follow.objects.filter(
             author__username=username,
-            follower=request.user
+            user=request.user
         ).exists()
     else:
         is_followed = False
@@ -35,7 +35,7 @@ def profile(request, username):
         request, 'posts/profile.html', {'page': page,
                                         'posts_amount': posts_amount,
                                         'author': author,
-                                        'follower': follower,
+                                        'follower': user,
                                         'following': following,
                                         'is_followed': is_followed}
     )
@@ -50,15 +50,22 @@ def post_view(request, username, post_id):
     )
     author = post.author
     posts_amount = author.posts.count()
-    follower = author.follower.count()
+    user = author.user.count()
     following = author.following.count()
     if request.user.is_authenticated:
         is_followed = Follow.objects.filter(
             author__username=username,
-            follower=request.user
+            user=request.user
         ).exists()
     else:
         is_followed = False
+    if request.user.is_authenticated:
+        form = CommentForm(request.POST or None)
+        if form.is_valid():
+            form.instance.author = request.user
+            form.instance.post = post
+            form.save()
+            return HttpResponseRedirect(reverse('post', args=[username, post_id]))
     return render(
         request,
         'posts/post.html', {
@@ -66,9 +73,10 @@ def post_view(request, username, post_id):
             'author': post.author,
             'comments': post.comments.all(),
             'posts_amount': posts_amount,
-            'follower': follower,
+            'follower': user,
             'following': following,
             'is_followed': is_followed,
+            'form':form
         }
     )
 
@@ -170,11 +178,11 @@ def add_comment(request, username, post_id):
 
     author = post.author
     posts_amount = author.posts.count()
-    follower = author.follower.count()
+    user = author.user.count()
     following = author.following.count()
     is_followed = Follow.objects.filter(
         author__username=username,
-        follower=request.user
+        user=request.user
     ).exists()
     return render(
         request,
@@ -183,7 +191,7 @@ def add_comment(request, username, post_id):
             'author': post.author,
             'comments': post.comments.all(),
             'posts_amount': posts_amount,
-            'follower': follower,
+            'follower': user,
             'following': following,
             'is_followed': is_followed,
             'form': form,
@@ -194,7 +202,7 @@ def add_comment(request, username, post_id):
 @login_required
 def follow_index(request):
     """Показывает посты от избранных авторов."""
-    subscriptions = request.user.follower.values_list('author__id', flat=True)
+    subscriptions = request.user.user.values_list('author__id', flat=True)
     posts_all = Post.objects.filter(author__id__in=subscriptions)
     paginator = Paginator(posts_all, settings.PAGE_MAX)
     page_number = request.GET.get('page')
@@ -212,10 +220,10 @@ def profile_follow(request, username):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     if Follow.objects.filter(
         author__username=username,
-        follower=request.user
+        user=request.user
     ).exists() is False:
         author = User.objects.get(username=username)
-        Follow.objects.create(author=author, follower=request.user)
+        Follow.objects.create(author=author, user=request.user)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -224,7 +232,7 @@ def profile_unfollow(request, username):
     """Отписывает от профиля."""
     record = Follow.objects.filter(
         author__username=username,
-        follower=request.user
+        user=request.user
     )
     if record.exists:
         record.delete()

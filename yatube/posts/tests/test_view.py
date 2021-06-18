@@ -31,7 +31,7 @@ class PostsViewTests(TestCase):
         cls.user1 = User.objects.create_user(username='test1')
         cls.follow = Follow.objects.create(
             author=cls.user,
-            follower=cls.user1
+            user=cls.user1
         )
         small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x02\x00'
@@ -171,7 +171,7 @@ class PostsViewTests(TestCase):
         )
         self.assertEqual(
             Follow.objects.filter(
-                follower=self.user,
+                user=self.user,
                 author=self.user1
             ).exists(),
             True
@@ -182,7 +182,7 @@ class PostsViewTests(TestCase):
         )
         self.assertEqual(
             Follow.objects.filter(
-                follower=self.user,
+                user=self.user,
                 author=self.user1
             ).exists(),
             False

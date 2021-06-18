@@ -58,13 +58,13 @@ class Follow(models.Model):
     """Модель для хранения подписок."""
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='following')
-    follower = models.ForeignKey(User, on_delete=models.CASCADE,
-                                 related_name='follower')
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                                 related_name='user')
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['follower', 'author'],
+                fields=['user', 'author'],
                 name='No_repeat_follows'
             )
         ]
