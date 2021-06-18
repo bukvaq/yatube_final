@@ -153,7 +153,8 @@ def post_edit(request, username, id_post):
         'post',
         kwargs={
             'username': username,
-            'post_id': id_post
+            'post_id': id_post,
+            'post':post_redacted
         }
     )
     if not post_redacted.author == request.user:
