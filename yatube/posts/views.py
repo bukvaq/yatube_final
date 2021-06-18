@@ -194,7 +194,7 @@ def add_comment(request, username, post_id):
 @login_required
 def follow_index(request):
     """Показывает посты от избранных авторов."""
-    subscriptions = request.user.follower.values_list('id', flat=True)
+    subscriptions = request.user.follower.values_list('author__id', flat=True)
     posts_all = Post.objects.filter(author__id__in=subscriptions)
     paginator = Paginator(posts_all, settings.PAGE_MAX)
     page_number = request.GET.get('page')
