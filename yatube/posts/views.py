@@ -19,7 +19,7 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     posts = author.posts.all()
     posts_amount = posts.count()
-    user = author.user.count()
+    user = author.follower.count()
     following = author.following.count()
     paginator = Paginator(posts, settings.PAGE_MAX)
     page_number = request.GET.get('page')
@@ -50,7 +50,7 @@ def post_view(request, username, post_id):
     )
     author = post.author
     posts_amount = author.posts.count()
-    user = author.user.count()
+    user = author.follower.count()
     following = author.following.count()
     if request.user.is_authenticated:
         is_followed = Follow.objects.filter(
@@ -59,8 +59,27 @@ def post_view(request, username, post_id):
         ).exists()
     else:
         is_followed = False
+    context = {
+        'post': post,
+        'author': post.author,
+        'comments': post.comments.all(),
+        'posts_amount': posts_amount,
+        'follower': user,
+        'following': following,
+        'is_followed': is_followed,
+    }
     if request.user.is_authenticated:
         form = CommentForm(request.POST or None)
+        context = {
+            'post': post,
+            'author': post.author,
+            'comments': post.comments.all(),
+            'posts_amount': posts_amount,
+            'follower': user,
+            'following': following,
+            'is_followed': is_followed,
+            'form':form
+        }
         if form.is_valid():
             form.instance.author = request.user
             form.instance.post = post
@@ -71,16 +90,8 @@ def post_view(request, username, post_id):
             )
     return render(
         request,
-        'posts/post.html', {
-            'post': post,
-            'author': post.author,
-            'comments': post.comments.all(),
-            'posts_amount': posts_amount,
-            'follower': user,
-            'following': following,
-            'is_followed': is_followed,
-            'form': form
-        }
+        'posts/post.html',
+        context
     )
 
 
@@ -181,7 +192,7 @@ def add_comment(request, username, post_id):
 
     author = post.author
     posts_amount = author.posts.count()
-    user = author.user.count()
+    user = author.follower.count()
     following = author.following.count()
     is_followed = Follow.objects.filter(
         author__username=username,
@@ -205,7 +216,7 @@ def add_comment(request, username, post_id):
 @login_required
 def follow_index(request):
     """Показывает посты от избранных авторов."""
-    subscriptions = request.user.user.values_list('author__id', flat=True)
+    subscriptions = request.user.follower.values_list('author__id', flat=True)
     posts_all = Post.objects.filter(author__id__in=subscriptions)
     paginator = Paginator(posts_all, settings.PAGE_MAX)
     page_number = request.GET.get('page')
