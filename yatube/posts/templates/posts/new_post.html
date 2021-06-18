@@ -1,17 +1,17 @@
 {% extends "extends/base.html" %}
 {% block title %}
-{%if edit_check == 0%}
-Новая запись
-{% else %}
+{% if post %}
 Редактировть запись
+{% else %}
+Новая запись
 {% endif %}
 {% endblock %}
 
 {% block header %}
-{% if edit_check == 0 %}
-Добавление новой записи
-{% else %}
+{% if post %}
 Редактирование записи
+{% else %}
+Добавление новой записи
 {% endif %}
 {% endblock %}
 

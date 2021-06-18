@@ -42,7 +42,7 @@ def profile(request, username):
 
 
 def post_view(request, username, post_id):
-    """Выводит один конкретный пост."""
+    """Выводит один конкретный пост, позволяет его комментировать."""
     post = get_object_or_404(
         Post,
         id=post_id,
@@ -59,6 +59,7 @@ def post_view(request, username, post_id):
         ).exists()
     else:
         is_followed = False
+    form = CommentForm(request.POST or None)
     context = {
         'post': post,
         'author': post.author,
@@ -67,27 +68,19 @@ def post_view(request, username, post_id):
         'follower': user,
         'following': following,
         'is_followed': is_followed,
+        'form': form
     }
-    if request.user.is_authenticated:
-        form = CommentForm(request.POST or None)
-        context = {
-            'post': post,
-            'author': post.author,
-            'comments': post.comments.all(),
-            'posts_amount': posts_amount,
-            'follower': user,
-            'following': following,
-            'is_followed': is_followed,
-            'form': form
-        }
-        if form.is_valid():
-            form.instance.author = request.user
-            form.instance.post = post
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'post',
-                args=[username, post_id])
-            )
+
+    if form.is_valid():
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('login'))
+        form.instance.author = request.user
+        form.instance.post = post
+        form.save()
+        return HttpResponseRedirect(reverse(
+            'post',
+            args=[username, post_id])
+        )
     return render(
         request,
         'posts/post.html',
@@ -172,7 +165,7 @@ def post_edit(request, username, id_post):
         return render(
             request,
             'posts/new_post.html',
-            {'form': form, 'edit_check': 1, 'post': post_edit}
+            {'form': form, 'post': post_redacted}
         )
 
 
@@ -232,12 +225,8 @@ def profile_follow(request, username):
     """Подписывает на профиль."""
     if username == request.user.username:
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    if Follow.objects.filter(
-        author__username=username,
-        user=request.user
-    ).exists() is False:
-        author = User.objects.get(username=username)
-        Follow.objects.create(author=author, user=request.user)
+    author = get_object_or_404(User, username=username)
+    Follow.objects.get_or_create(author=author, user=request.user)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
