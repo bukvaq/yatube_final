@@ -169,7 +169,7 @@ def post_edit(request, username, id_post):
         )
 
 
-'''@login_required
+@login_required
 def add_comment(request, username, post_id):
     """Позволяет создавать комментарии."""
     post = get_object_or_404(
@@ -203,7 +203,7 @@ def add_comment(request, username, post_id):
             'is_followed': is_followed,
             'form': form,
         }
-    )'''
+    )
 
 
 @login_required
