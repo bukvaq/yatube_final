@@ -204,7 +204,8 @@ class PostsViewTests(TestCase):
 
     def test_sub(self):
         """Созданный автором пост не появляется в ленте
-        подписок у тех, кто на него не подписан."""
+        подписок у тех, кто на него не подписан, и появляется в ленте тех,
+        кто подписан."""
         response = self.authorised_client.get(reverse('follow_index'))
         self.assertEqual(len(response.context.get('page')), 0)
         response = self.authorised_client1.get(reverse('follow_index'))
@@ -239,6 +240,6 @@ class PaginatorViewsTest(TestCase):
 
     def test_paginator_last_page(self):
         """Тестирует корректность вычичления отсатка
-        записей на последней странице"""
+        записей на последней странице."""
         response = self.client.get(reverse('posts') + '?page=2')
         self.assertEqual(len(response.context.get('page')), 5)
