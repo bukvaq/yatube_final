@@ -19,8 +19,6 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     posts = author.posts.all()
     posts_amount = posts.count()
-    user = author.follower.count()
-    following = author.following.count()
     paginator = Paginator(posts, settings.PAGE_MAX)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -35,8 +33,6 @@ def profile(request, username):
         request, 'posts/profile.html', {'page': page,
                                         'posts_amount': posts_amount,
                                         'author': author,
-                                        'follower': user,
-                                        'following': following,
                                         'is_followed': is_followed}
     )
 
@@ -50,8 +46,6 @@ def post_view(request, username, post_id):
     )
     author = post.author
     posts_amount = author.posts.count()
-    user = author.follower.count()
-    following = author.following.count()
     if request.user.is_authenticated:
         is_followed = Follow.objects.filter(
             author__username=username,
@@ -65,8 +59,6 @@ def post_view(request, username, post_id):
         'author': post.author,
         'comments': post.comments.all(),
         'posts_amount': posts_amount,
-        'follower': user,
-        'following': following,
         'is_followed': is_followed,
         'form': form
     }
@@ -252,4 +244,4 @@ def page_not_found(request, exception):
 
 
 def server_error(request):
-    return render(request, "misc/error.html", {'error': 500}, status=500)
+    return render(request, 'misc/error.html', {'error': 500}, status=500)

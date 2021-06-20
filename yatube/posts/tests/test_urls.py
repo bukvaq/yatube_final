@@ -1,5 +1,7 @@
+from http import HTTPStatus
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
+from django.core.cache import cache
 
 from ..models import Group, Post
 
@@ -29,6 +31,13 @@ class PostsURLTests(TestCase):
         self.authorised_client.force_login(PostsURLTests.user)
         self.authorised_client_1 = Client()
         self.authorised_client_1.force_login(PostsURLTests.user_1)
+        cache.clear()
+
+    def test_urls_404(self):
+        """Проверяет, что сервер возваращет 404
+        при обращении к несуществующей странице."""
+        response = self.guest_client.get('/nonexistentURL/')
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_urls_200_unauthorised(self):
         """Проверяет доступность страниц."""
@@ -41,7 +50,7 @@ class PostsURLTests(TestCase):
         for adress in urls:
             with self.subTest(adress=adress):
                 response = self.guest_client.get(adress)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_urls_redirect_unauthorised(self):
         """Проверяет перенаправление для неавторизованных пользователей. """
@@ -77,7 +86,7 @@ class PostsURLTests(TestCase):
             with self.subTest(adress=adress):
                 self.assertEqual(
                     self.authorised_client.get(adress).status_code,
-                    200
+                    HTTPStatus.OK
                 )
 
     def test_urls_uses_correct_template(self):

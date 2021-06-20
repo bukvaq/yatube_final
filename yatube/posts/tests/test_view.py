@@ -1,6 +1,6 @@
 import shutil
-import time
 
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
@@ -64,6 +64,7 @@ class PostsViewTests(TestCase):
         self.authorised_client.force_login(self.user)
         self.authorised_client1 = Client()
         self.authorised_client1.force_login(self.user1)
+        cache.clear()
 
     def test_pages_use_correct_template(self):
         """Тест того, что view - функция использует соответствующий шаблон."""
@@ -100,17 +101,12 @@ class PostsViewTests(TestCase):
                     first_post = all_posts[0]
                 else:
                     first_post = all_posts
-                post_author = first_post.author
-                post_text = first_post.text
-                post_date = first_post.pub_date
-                post_group = first_post.group
-                date_check = self.post.pub_date
-                post_image = self.post.image
-                self.assertEqual(post_author, self.user)
-                self.assertEqual(post_text, 'ъ' * 100)
-                self.assertEqual(post_date, date_check)
-                self.assertEqual(post_group, self.group)
-                self.assertEqual(post_image, 'posts/small.gif')
+
+                self.assertEqual(first_post.author, self.user)
+                self.assertEqual(first_post.text, 'ъ' * 100)
+                self.assertEqual(first_post.pub_date, self.post.pub_date)
+                self.assertEqual(first_post.group, self.group)
+                self.assertEqual(self.post.image, 'posts/small.gif')
 
     def test_forms_post(self):
         """Шаблоны с формами сформированы с правильным контекстом."""
@@ -147,6 +143,7 @@ class PostsViewTests(TestCase):
     def test_cache_index(self):
         """Тестирует кэширование записей на главной странице."""
         response1 = self.guest_client.get(reverse('posts'))
+        response1 = self.guest_client.get(reverse('posts'))
         new_post = Post.objects.create(
             text='Новый пост',
             author=self.user
@@ -156,7 +153,7 @@ class PostsViewTests(TestCase):
             response1.context.get('page')[0].text,
             response2.context.get('page')[0].text
         )
-        time.sleep(20)
+        cache.clear()
         response2 = self.guest_client.get(reverse('posts'))
         self.assertEqual(
             response1.context.get('page')[0].text,
@@ -191,7 +188,7 @@ class PostsViewTests(TestCase):
     def test_comment_unauth(self):
         """Тестирует возможность комментировать."""
         form = {
-            'text': 'Текст'
+            'text': 'Текст',
         }
         self.guest_client.post(
             reverse('add_comment', args=[self.user.username, self.post.id]),
@@ -206,8 +203,8 @@ class PostsViewTests(TestCase):
         self.assertEqual(self.post.comments.count(), 1)
 
     def test_sub(self):
-        """Тестирует корректность отображения постов
-        при подписке."""
+        """Созданный автором пост не появляется в ленте
+        подписок у тех, кто на него не подписан."""
         response = self.authorised_client.get(reverse('follow_index'))
         self.assertEqual(len(response.context.get('page')), 0)
         response = self.authorised_client1.get(reverse('follow_index'))
