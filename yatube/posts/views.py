@@ -1,3 +1,6 @@
+from http import HTTPStatus
+
+
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
@@ -237,11 +240,17 @@ def profile_unfollow(request, username):
 def page_not_found(request, exception):
     return render(
         request,
-        'misc/error.html',
-        {'path': request.path, 'error': 404},
-        status=404
+        'misc/error.html', {
+            'path': request.path,
+            'error': HTTPStatus.NOT_FOUND.value
+        },
+        status=HTTPStatus.NOT_FOUND
     )
 
 
 def server_error(request):
-    return render(request, 'misc/error.html', {'error': 500}, status=500)
+    return render(
+        request,
+        'misc/error.html', {
+            'error': HTTPStatus.INTERNAL_SERVER_ERROR.value
+        }, status=HTTPStatus.INTERNAL_SERVER_ERROR)
