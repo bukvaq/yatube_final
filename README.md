@@ -1,3 +1,42 @@
-# hw05_final
+# api_yamdb
+Проект YaMDb собирает отзывы пользователей на различные произведения.
+***
+### Возможности:
+* Регистрация (по ник-нейму и электронной почте)
+* Написание, изменение и удаление постов, добавление их в группы
+* Написание, изменение и удаление комментариев к постам
+* Подписка на других авторов
+***
+### Как запустить проект:
+Создать и активировать виртуальное окружение:
+```
+python -m venv env
 
-[![CI](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml)
+source venv/bin/activate
+```
+Обновить pip
+```
+python -m pip install --upgrade pip
+```
+Установить зависимости из файла requirements.txt:
+```
+pip install -r requirements.txt
+```
+Выполнить миграции:
+```
+python manage.py migrate
+```
+Запустить сервер:
+```
+python manage.py runserver
+```
+Ссылка на локальный сервер:
+http://127.0.0.1:8000/
+
+***
+
+***
+## Автор проекта:
+* Максим Шамшурин
+***
+
